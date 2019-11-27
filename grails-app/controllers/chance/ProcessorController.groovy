@@ -3,36 +3,6 @@ import org.scrapper.*
 
 class ProcessorController {
 
-    private LinkedHashMap<Integer, Double> sortHashMapByValues(HashMap<Integer, Double> passedMap) {
-        List<Integer> mapKeys = new ArrayList<>(passedMap.keySet());
-        List<Double> mapValues = new ArrayList<>(passedMap.values());
-        Collections.sort(mapValues);
-        Collections.sort(mapKeys);
-
-        LinkedHashMap<Integer, Double> sortedMap =
-            new LinkedHashMap<>();
-
-        Iterator<Double> valueIt = mapValues.iterator();
-        while (valueIt.hasNext()) {
-            Double val = valueIt.next();
-            Iterator<Integer> keyIt = mapKeys.iterator();
-
-            while (keyIt.hasNext()) {
-                Integer key = keyIt.next();
-                Double comp1 = passedMap.get(key);
-                Double comp2 = val;
-
-                if (comp1.equals(comp2)) {
-                    keyIt.remove();
-                    if(valueIt.hasNext())
-                        sortedMap.put(key, val);
-                    break;
-                }
-            }
-        }
-        return sortedMap;
-    }
-
     def index() { 
         int tmp, before = 1, actual = 1
         double[][] repetitionDigit = new double[4][10]
@@ -41,12 +11,12 @@ class ProcessorController {
         double[] repetitionFourDigit = new double[10000]
         Calendar cal = Calendar.getInstance()
 
-        LinkedHashMap<Integer, Double> best =
-            new LinkedHashMap<>();
-        // int[] bestNumber = new int[100]
-        // double[] best = new double[100]
-        for(int a=0;a<100;a++)
-            best.put(a,10000.0)
+        int[] bestNumber = new int[100]
+        double[] best = new double[100]
+        for(int a=0;a<100;a++){
+            best[a]=10000.0
+            bestNumber[a]=1000-a
+        }
 
         while(actual<5000){
             cal.setTime(new Date());
@@ -61,22 +31,32 @@ class ProcessorController {
             before = actual
             actual += tmp
         }
+        LinkedHashMap<Integer, Double> resultsAnalized = new LinkedHashMap<>();
         repetitionFourDigit.eachWithIndex { result, k ->
             result += calculateProbabilityResult(k, repetitionDigit, repetitionTwoDigit, repetitionThreeDigit, repetitionFourDigit)
-            print "key: " + k + "; prob: " + result
+            // print "key: " + k + "; prob: " + result
 
-            Double value = best.entrySet().toArray()[best.size() -1].value;
-            if(value>result){
-                best.put(k,result)
-                best = sortHashMapByValues(best)
-                // Iterator<Integer, Double> bestIt = best.iterator();
-                // def lastElement = bestIt.next()
-                // while (bestIt.hasNext()) { lastElement = iterator.next() }
-                // lastElement
+            if(best[99]>result){
+                resultsAnalized.remove(bestNumber[99])
+                resultsAnalized.put(k,result)
+                best[99] = result
+                bestNumber[99] = k
+                Arrays.sort(best)
+                best.eachWithIndex { value, ki ->
+                    Iterator<Integer, Double> savedIt = resultsAnalized.iterator()
+
+                    while (savedIt.hasNext()) {
+                        def key = savedIt.next();
+                        Double comp1 = key.value
+
+                        if (comp1.equals(value))
+                            bestNumber[ki]=key.key
+                    }
+                }
             }
         }
         
-        render best
+        render bestNumber
     }
 
     private double calculateProbabilityResult(int number, double[][] repetitionDigit, double[][] repetitionTwoDigit, double[][] repetitionThreeDigit, double[] repetitionFourDigit){
@@ -96,7 +76,7 @@ class ProcessorController {
         tmp += repetitionDigit[1][Integer.parseInt(numberString[1])]
         tmp += repetitionDigit[2][Integer.parseInt(numberString[2])]
         tmp += repetitionDigit[3][Integer.parseInt(numberString[3])]
-        print "Primer digito: " + tmp
+        // print "Primer digito: " + tmp
 
         // probabilidad por dos dígitos
         tmp += repetitionTwoDigit[0][Integer.parseInt(numberString[0]+numberString[1])]
@@ -105,14 +85,14 @@ class ProcessorController {
         tmp += repetitionTwoDigit[3][Integer.parseInt(numberString[0]+numberString[2])]
         tmp += repetitionTwoDigit[4][Integer.parseInt(numberString[0]+numberString[3])]
         tmp += repetitionTwoDigit[5][Integer.parseInt(numberString[1]+numberString[3])]
-        print "Uno y dos digitos: " + tmp
+        // print "Uno y dos digitos: " + tmp
 
         // probabilidad con tres dígitos
         tmp += repetitionThreeDigit[0][Integer.parseInt(numberString[0]+numberString[1]+numberString[2])]
         tmp += repetitionThreeDigit[1][Integer.parseInt(numberString[1]+numberString[2]+numberString[3])]
         tmp += repetitionThreeDigit[2][Integer.parseInt(numberString[2]+numberString[3]+numberString[0])]
         tmp += repetitionThreeDigit[3][Integer.parseInt(numberString[1]+numberString[3]+numberString[0])]
-        print "Uno, dos y tres digitos: " + tmp
+        // print "Uno, dos y tres digitos: " + tmp
 
         return tmp
     }
@@ -251,10 +231,6 @@ class ProcessorController {
         results.each { p->
             tmp[Integer.parseInt(p[1])] += p[0]/totalResults
         }
-        // print "Lista de resultados: "
-        // print tmp
-        // print "Total resultados por fecha: " + totalResults 
-
         return tmp
     }
 }
