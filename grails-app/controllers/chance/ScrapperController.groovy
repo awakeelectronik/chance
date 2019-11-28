@@ -33,10 +33,10 @@ class ScrapperController {
     }
  
     def index() {
-        String date = "15/11/2019"
+        String date = "27/11/2019"
         String message = ""
 
-        for(int a=0;a<7;a++){
+        for(int a=0;a<2;a++){
             String tmp = getResultREST(date)
             if(tmp!='<div class="displayN"><div id="resultadosTabla"><table class="tbSecos"><tbody><tr><td colspan="3"><b>No se han encontrada resultados de la fecha seleccionada</b></td></tr></tbody></table></div></div>'){
                 String result = cleanData(tmp)

@@ -101,22 +101,22 @@ class ProcessorController {
         def resultsBetween = Result.executeQuery('SELECT COUNT(first) AS repetition, first FROM Result ' +
                                                     'WHERE STR_TO_DATE(date,?)> ?' +
                                                     'GROUP BY first',['%d/%m/%Y',cal.time])
-        prob[0] = sumProbDigit(resultsBetween, prob[0])
+        prob[0] = sumProbDigit(resultsBetween, prob[0], 1.0)
         
         resultsBetween = Result.executeQuery('SELECT COUNT(second) AS repetition, second FROM Result ' +
                                                     'WHERE STR_TO_DATE(date,?)> ?' +
                                                     'GROUP BY second',['%d/%m/%Y',cal.time])
-        prob[1] = sumProbDigit(resultsBetween, prob[1])
+        prob[1] = sumProbDigit(resultsBetween, prob[1], 1.0)
         
         resultsBetween = Result.executeQuery('SELECT COUNT(third) AS repetition, third FROM Result ' +
                                                     'WHERE STR_TO_DATE(date,?)> ?' +
                                                     'GROUP BY third',['%d/%m/%Y',cal.time])
-        prob[2] = sumProbDigit(resultsBetween, prob[2])
+        prob[2] = sumProbDigit(resultsBetween, prob[2], 1.2)
         
         resultsBetween = Result.executeQuery('SELECT COUNT(fourth) AS repetition, fourth FROM Result ' +
                                                     'WHERE STR_TO_DATE(date,?)> ?' +
                                                     'GROUP BY fourth',['%d/%m/%Y',cal.time])
-        prob[3] = sumProbDigit(resultsBetween, prob[3])
+        prob[3] = sumProbDigit(resultsBetween, prob[3], 1.2)
 
         return prob
     }
@@ -125,32 +125,32 @@ class ProcessorController {
         def resultsBetween = Result.executeQuery('SELECT COUNT(first) AS repetition, first, second FROM Result ' +
                                                     'WHERE STR_TO_DATE(date,?)> ?' +
                                                     'GROUP BY first, second',['%d/%m/%Y',cal.time])
-        prob[0] = sumProbTwoDigit(resultsBetween, prob[0])
+        prob[0] = sumProbTwoDigit(resultsBetween, prob[0], 1.0)
         
         resultsBetween = Result.executeQuery('SELECT COUNT(second) AS repetition, second, third FROM Result ' +
                                                     'WHERE STR_TO_DATE(date,?)> ?' +
                                                     'GROUP BY second, third',['%d/%m/%Y',cal.time])
-        prob[1] = sumProbTwoDigit(resultsBetween, prob[1])
+        prob[1] = sumProbTwoDigit(resultsBetween, prob[1], 1.05)
         
         resultsBetween = Result.executeQuery('SELECT COUNT(third) AS repetition, third, fourth FROM Result ' +
                                                     'WHERE STR_TO_DATE(date,?)> ?' +
                                                     'GROUP BY third, fourth',['%d/%m/%Y',cal.time])
-        prob[2] = sumProbTwoDigit(resultsBetween, prob[2])
+        prob[2] = sumProbTwoDigit(resultsBetween, prob[2], 1.2)
         
         resultsBetween = Result.executeQuery('SELECT COUNT(third) AS repetition, third, first FROM Result ' +
                                                     'WHERE STR_TO_DATE(date,?)> ?' +
                                                     'GROUP BY third, first',['%d/%m/%Y',cal.time])
-        prob[3] = sumProbTwoDigit(resultsBetween, prob[3])
+        prob[3] = sumProbTwoDigit(resultsBetween, prob[3], 1.05)
         
         resultsBetween = Result.executeQuery('SELECT COUNT(first) AS repetition, first, fourth FROM Result ' +
                                                     'WHERE STR_TO_DATE(date,?)> ?' +
                                                     'GROUP BY first, fourth',['%d/%m/%Y',cal.time])
-        prob[4] = sumProbTwoDigit(resultsBetween, prob[4])
+        prob[4] = sumProbTwoDigit(resultsBetween, prob[4], 1.05)
         
         resultsBetween = Result.executeQuery('SELECT COUNT(fourth) AS repetition, fourth, second FROM Result ' +
                                                     'WHERE STR_TO_DATE(date,?)> ?' +
                                                     'GROUP BY fourth, second',['%d/%m/%Y',cal.time])
-        prob[5] = sumProbTwoDigit(resultsBetween, prob[5])
+        prob[5] = sumProbTwoDigit(resultsBetween, prob[5], 1.05)
         
         return prob
     }
@@ -159,22 +159,22 @@ class ProcessorController {
         def resultsBetween = Result.executeQuery('SELECT COUNT(first) AS repetition, first, second, third FROM Result ' +
                                                     'WHERE STR_TO_DATE(date,?)> ?' +
                                                     'GROUP BY first, second, third',['%d/%m/%Y',cal.time])
-        prob[0] = sumProbThreeDigit(resultsBetween, prob[0])
+        prob[0] = sumProbThreeDigit(resultsBetween, prob[0], 1.0)
         
         resultsBetween = Result.executeQuery('SELECT COUNT(second) AS repetition, second, third, fourth FROM Result ' +
                                                     'WHERE STR_TO_DATE(date,?)> ?' +
                                                     'GROUP BY second, third, fourth',['%d/%m/%Y',cal.time])
-        prob[1] = sumProbThreeDigit(resultsBetween, prob[1])
+        prob[1] = sumProbThreeDigit(resultsBetween, prob[1], 1.2)
         
         resultsBetween = Result.executeQuery('SELECT COUNT(third) AS repetition, third, fourth, first FROM Result ' +
                                                     'WHERE STR_TO_DATE(date,?)> ?' +
                                                     'GROUP BY third, fourth, first',['%d/%m/%Y',cal.time])
-        prob[2] = sumProbThreeDigit(resultsBetween, prob[2])
+        prob[2] = sumProbThreeDigit(resultsBetween, prob[2], 1.2)
         
         resultsBetween = Result.executeQuery('SELECT COUNT(second) AS repetition, second, fourth, first FROM Result ' +
                                                     'WHERE STR_TO_DATE(date,?)> ?' +
                                                     'GROUP BY second, fourth, first',['%d/%m/%Y',cal.time])
-        prob[3] = sumProbThreeDigit(resultsBetween, prob[3])
+        prob[3] = sumProbThreeDigit(resultsBetween, prob[3], 1.0)
         
         return prob
     }
@@ -193,7 +193,7 @@ class ProcessorController {
         return prob
     }
 
-    private double[] sumProbThreeDigit(results, double[] prob){
+    private double[] sumProbThreeDigit(results, double[] prob, double factor){
         double[] tmp = prob
         int totalResults = 0
         
@@ -201,12 +201,12 @@ class ProcessorController {
             totalResults += p[0]
         }
         results.each { p->
-            tmp[Integer.parseInt(p[1]+""+p[2]+p[3])] += (p[0]/totalResults)*100
+            tmp[Integer.parseInt(p[1]+""+p[2]+p[3])] += ((p[0]/totalResults)*100*factor)
         }
         return tmp
     }
 
-    private double[] sumProbTwoDigit(results, double[] prob){
+    private double[] sumProbTwoDigit(results, double[] prob, double factor){
         double[] tmp = prob
         int totalResults = 0
         
@@ -215,12 +215,12 @@ class ProcessorController {
             totalResults += p[0]
         }
         results.each { p->
-            tmp[Integer.parseInt(p[1]+""+p[2])] += (p[0]/totalResults)*3
+            tmp[Integer.parseInt(p[1]+""+p[2])] += ((p[0]/totalResults)*3*factor)
         }
         return tmp
     }
 
-    private double[] sumProbDigit(results, double[] prob){
+    private double[] sumProbDigit(results, double[] prob, double factor){
         double[] tmp = prob
         int totalResults = 0
         
@@ -229,7 +229,7 @@ class ProcessorController {
             totalResults += p[0]
         }
         results.each { p->
-            tmp[Integer.parseInt(p[1])] += p[0]/totalResults
+            tmp[Integer.parseInt(p[1])] += (p[0]/totalResults)*factor
         }
         return tmp
     }
