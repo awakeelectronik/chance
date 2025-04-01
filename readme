@@ -1,0 +1,52 @@
+# Manifiesto de Configuración para Aplicación Groovy on Grails en Debian
+
+## Descripción
+
+Este manifiesto describe la configuración necesaria para ejecutar una aplicación Groovy on Grails en un entorno Debian. Incluye detalles sobre el JDK, base de datos MySQL y otras configuraciones relevantes.
+
+## Requisitos del Sistema
+
+### Sistema Operativo
+- Debian (versión recomendada: Debian 10 o superior)
+
+### Java Development Kit (JDK)
+- Versión: JDK 1.8.0_321 (Oracle JDK) o OpenJDK 8
+  - **Nota**: Se recomienda usar una versión específica del JDK para evitar problemas de compatibilidad.
+- Configuración:
+  - JAVA_HOME: /usr/lib/jvm/jdk1.8.0_321 (o la ruta donde esté instalado el JDK)
+  - PATH: Debe incluir $JAVA_HOME/bin para que los comandos de Java estén disponibles globalmente.
+
+### Base de Datos: MySQL
+- Versión: MySQL 5.7 o superior
+- Configuración:
+  - Driver JDBC: MySQL Connector/J (ej: mysql-connector-java-5.1.49.jar)
+  - Cadena de Conexión (en `grails-app/conf/application.yml`):
+
+    ```
+    dataSource:
+      pooled: true
+      jmxExport: true
+      driverClassName: com.mysql.jdbc.Driver
+      url: jdbc:mysql://localhost:3306/nombre_de_la_base_de_datos?useUnicode=true&characterEncoding=UTF-8
+      username: tu_usuario_mysql
+      password: tu_contraseña_mysql
+      properties:
+        hibernate:
+          dialect: org.hibernate.dialect.MySQL5InnoDBDialect
+    ```
+
+### Grails Framework
+- Versión: Grails 3.x o superior
+  - **Nota**: La versión de Grails debe ser compatible con el JDK y las dependencias del proyecto.
+
+### Groovy
+- Versión: Compatible con la versión de Grails utilizada (generalmente Groovy 2.4.x o superior)
+
+## Configuración Adicional
+
+### Variables de Entorno
+- Además de `JAVA_HOME`, es posible que necesites configurar otras variables de entorno específicas para tu aplicación.
+
+### Dependencias
+- Asegúrate de incluir las dependencias necesarias en el archivo `build.gradle`:
+

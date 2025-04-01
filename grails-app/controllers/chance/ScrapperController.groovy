@@ -1,10 +1,9 @@
 package chance
 import grails.plugins.rest.client.RestBuilder
 import grails.plugins.rest.client.RestResponse
-import org.springframework.util.MultiValueMap
-import org.springframework.util.LinkedMultiValueMap
 import java.text.SimpleDateFormat
 import org.scrapper.*
+
 
 class ScrapperController {
     SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
@@ -14,7 +13,7 @@ class ScrapperController {
         render Result.executeQuery('from Result')
     }
 
-    def index2() {
+    def fixSign() {
         int a = 0
         Result.all.each { result ->
             if(result.sign.contains("Z")){
@@ -33,12 +32,12 @@ class ScrapperController {
     }
  
     def index() {
-        String date = "27/11/2019"
+        String date = "31/03/2025"
         String message = ""
 
-        for(int a=0;a<2;a++){
+        for(int a=0;a<5;a++){
             String tmp = getResultREST(date)
-            if(tmp!='<div class="displayN"><div id="resultadosTabla"><table class="tbSecos"><tbody><tr><td colspan="3"><b>No se han encontrada resultados de la fecha seleccionada</b></td></tr></tbody></table></div></div>'){
+            if(tmp!='<div class="displayN"><div id="resultadosTabla"><table class="tbSecos"><tbody><tr><td colspan="3"><b>No se han encontrado resultados de la fecha seleccionada</b></td></tr></tbody></table></div></div>'){
                 String result = cleanData(tmp)
                 Result resultToSave = new Result(first: result[0], second: result[1], third: result[2], fourth: result[3], sign: result[4], date: date)
                 resultToSave.save()
@@ -50,10 +49,9 @@ class ScrapperController {
             }
             date = generateNextDay(date)
         }
-        
-        print message
         render message
     }
+
     private String cleanData(String result){
         int index = result.indexOf("---")
         int indexEndSign = result.indexOf("<", index+4)
@@ -119,28 +117,18 @@ class ScrapperController {
     }
 
     private String getResultREST(String plainDate){
-        MultiValueMap<String, String> form = new LinkedMultiValueMap<String, String>()
-        form.add("idLoteria", "21")
-        form.add("sFecha", plainDate)
-        form.add("txtValueCaptcha", "DMNT")
-        form.add("valueCaptcha", "kZyAcju1QZE5sNoRHMohIg==")
-        RestResponse resp = rest.post("https://resultadodelaloteria.com/ws/services.asmx/getResultado") {
-            accept("application/json")
-            contentType("application/x-www-form-urlencoded")
-            body(form)
-        }
-        return resp.xml 
+        RestResponse resp = rest.get("https://resultadodelaloteria.com/ws/services.asmx/getResultado?sFecha="+plainDate+"&idLoteria=21&valueCaptcha=kZyAcju1QZE5sNoRHMohIg==&txtValueCaptcha=DMNT") {}
+        return resp.body 
     }
 
     private String generateNextDay(String oldDateShort){
         Date oldDate = formatter.parse(oldDateShort);
-        Date newDate = new Date(oldDate.getTime()+(1000*24*60*60))
+        Date newDate = new Date(oldDate.getTime()+(1000*24*60*60))  
 
         return formatter.format(newDate);
     }
 
     def createResult(){
-        print "ptoban"
         Result result = new Result(result: "1345A", date: "12/01/2009")
         result.save(flush: true)
         print result

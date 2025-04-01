@@ -37,4 +37,7 @@
 # "temporary" build files
 /target
 
+# File for pass and others
+/grails-app/conf/DataSource.groovy
+
 # End of https://www.gitignore.io/api/grails
