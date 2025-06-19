@@ -8,10 +8,14 @@ import org.scrapper.*
 class ScrapperController {
     SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
     RestBuilder rest = new RestBuilder()
+    def scrapperService
 
-    def index1(){
-        render Result.executeQuery('from Result')
+    def index() {
+        String message = scrapperService.scrappingFromLastDate()
+        render message
     }
+
+
 
     def fixSign() {
         int a = 0
@@ -20,9 +24,6 @@ class ScrapperController {
                 String tmp = getResultREST(result.date)
                 String resp = cleanData(tmp)
                 result.sign =  resp[4]
-                // result.second =  result[1]
-                // result.third =  result[2]
-                // result.fourth =  result[3]
                 result.save(flush:true)
                 a++
             }
@@ -31,8 +32,8 @@ class ScrapperController {
         print a
     }
  
-    def index() {
-        String date = "14/06/2025"
+    def fromSpecificDate() {
+        String date = "17/06/2025"
         String message = ""
 
         for(int a=0;a<5;a++){

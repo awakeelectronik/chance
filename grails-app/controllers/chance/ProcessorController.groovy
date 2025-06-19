@@ -2,8 +2,10 @@ package chance
 import org.scrapper.*
 
 class ProcessorController {
-
+    def scrapperService
     def index() { 
+        scrapperService.scrappingFromLastDate()
+
         int tmp, before = 1, actual = 1
         double[][] repetitionDigit = new double[4][10]
         double[][] repetitionTwoDigit = new double[6][100]
