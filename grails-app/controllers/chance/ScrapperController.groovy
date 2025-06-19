@@ -32,7 +32,7 @@ class ScrapperController {
     }
  
     def index() {
-        String date = "31/03/2025"
+        String date = "14/06/2025"
         String message = ""
 
         for(int a=0;a<5;a++){
